@@ -79,7 +79,7 @@ def scrape_laptops():
 #scrape from compu ghana
 @app.route('/compu-ghana')
 def scrape_laptop_data():
-    url = "https://compughana.com/it-networking/laptops.html?&price=-10000"  # Replace with the actual URL of the website with the laptops' data
+    url = "https://compughana.com/it-networking/laptops.html?&price=-10000"  
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
 
@@ -91,7 +91,25 @@ def scrape_laptop_data():
 
         laptops.append({"name": name, "price": price})
 
-    return laptops
+    return jsonify(laptops)
+
+
+
+@app.route('/get4less')
+def get_laptop_data():
+    url = "https://get4lessghana.com/product-category/it-products/computer/laptop/"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    laptops = []
+
+    for laptop_item in soup.find_all("li", class_="rey-swatches"):
+        name = laptop_item.find("h2", class_="woocommerce-loop-product__title").text.strip()
+        price = laptop_item.find("span", class_="woocommerce-Price-amount").text.strip()
+
+        laptops.append({"name": name, "price": price})
+
+    return jsonify(laptops)
 
 
 if __name__ == '__main__':
