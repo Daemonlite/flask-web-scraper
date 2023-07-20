@@ -28,10 +28,15 @@ async def get_product(product_div):
     # Fetch all attributes and text at once
     image_url = await image_element.get_attribute('src') if image_element else None
     product_name = await name_element.inner_text() if name_element else None
-    try:
-        product_price = float((await price_element.inner_text()).replace("$", "").replace(",", "").strip()) if price_element else None
-    except:
-        product_price = None
+
+    product_price = None
+    if price_element:
+        try:
+            price_text = (await price_element.inner_text()).replace("$", "").replace(",", "").strip()
+            product_price = float(price_text)
+        except ValueError:
+            pass
+
     product_url = "/".join((await url_element.get_attribute('href')).split("/")[:4]) if url_element else None
 
     return {"img": image_url, "name": product_name, "price": product_price, "url": product_url}
@@ -42,7 +47,7 @@ async def get_macbooks():
         browser = await playwright.chromium.launch()
         page = await browser.new_page()
 
-        url = 'https://www.amazon.ca/s?k=macbook'
+        url = 'https://www.amazon.ca/s?k=macbook&crid=3BT2TS8WXKQJX&sprefix=macbook%2Caps%2C1716&ref=nb_sb_noss_1'
         await page.goto(url)
 
         macbooks = []
@@ -53,7 +58,8 @@ async def get_macbooks():
 
             for product_div in product_divs:
                 product_data = await get_product(product_div)
-                macbooks.append(product_data)
+                if product_data["name"] and "macbook" in product_data["name"].lower() and product_data["price"]:
+                    macbooks.append(product_data)
 
         except Error:
             print('Timeout error occurred.')
@@ -64,4 +70,5 @@ async def get_macbooks():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
