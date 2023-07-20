@@ -15,8 +15,8 @@
 
 1. /laptops
 
-## get cheap laptops with prices
-1. /cheap-laptops
+## get laptops with prices
+1. /cheap-laptops  --get cheap laptops outside ghana
 2. /compu-ghana   -- list of laptops and prices from compu ghana
 3. /get4less  --- list of laptops and prices from get 4 less
 
