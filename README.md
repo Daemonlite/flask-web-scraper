@@ -12,7 +12,7 @@
 
 ## get sites for cheap laptops
 
-1. use /laptops
+1. /laptops
 
 ## get cheap laptops with prices
-1./cheap-laptops
+1. /cheap-laptops

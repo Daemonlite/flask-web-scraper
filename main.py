@@ -76,6 +76,23 @@ def scrape_laptops():
 
     return jsonify(laptops)
 
+#scrape from compu ghana
+@app.route('/compu-ghana')
+def scrape_laptop_data():
+    url = "https://compughana.com/it-networking/laptops.html?&price=-10000"  # Replace with the actual URL of the website with the laptops' data
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    laptops = []
+
+    for laptop_item in soup.find_all("div", class_="product-item-details"):
+        name = laptop_item.find("strong", class_="product-item-name").text.strip()
+        price = laptop_item.find("span", class_="price").text.strip()
+
+        laptops.append({"name": name, "price": price})
+
+    return laptops
+
 
 if __name__ == '__main__':
     app.run(debug=True)
