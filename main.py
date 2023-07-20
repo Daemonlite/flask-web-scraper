@@ -22,10 +22,12 @@ def scrape_google_search_results(url):
                     description = g.find('div', {'data-sncf': '2'}).text
                 except Exception as e:
                     description = "-"
+
+
                 results.append({
                     "title": title,
                     "link": link,
-                    "description": description
+                    "description": description,
                 })
 
         return results
@@ -41,7 +43,7 @@ def get_cafes_in_new_york():
     else:
         return jsonify({"message": "Failed to fetch cafes in New York."}), 500
 
-@app.route('/laptop-prices')
+@app.route('/laptops')
 def get_laptop_prices():
     url = 'https://www.google.com/search?q=laptop+prices&oq=laptop+prices'
     results = scrape_google_search_results(url)
@@ -49,6 +51,31 @@ def get_laptop_prices():
         return jsonify(results)
     else:
         return jsonify({"message": "Failed to fetch laptop prices."}), 500
+    
+@app.route('/cheap-laptops')
+def scrape_laptops():
+    url = "https://www.theverge.com/22652565/best-cheap-laptops"
+    response = requests.get(url)
+    if response.status_code != 200:
+        return jsonify({'error': 'Failed to fetch data'})
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+    laptops = []
+
+    laptop_elements = soup.select('.duet--article--product-card')
+    for laptop_elem in laptop_elements:
+        name_elem = laptop_elem.select_one('h3 a')
+        price_elem = laptop_elem.select_one('span.text-18')
+        specs_elem = laptop_elem.select_one('p.font-fkroman')
+
+        if name_elem and price_elem and specs_elem:
+            name = name_elem.get_text(strip=True)
+            price = price_elem.get_text(strip=True)
+            specs = specs_elem.get_text(strip=True)
+            laptops.append({'name': name, 'price': price, 'specs': specs})
+
+    return jsonify(laptops)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
