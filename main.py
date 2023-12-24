@@ -120,17 +120,13 @@ def get_laptop_data():
 
 @app.route('/rental', methods=['GET'])
 def get_property_listings():
-    # Replace the URL below with the actual URL of the website
     url = 'https://www.realtor.com/international/gh/rent?sort=price+asc'
 
-    # Fetch the HTML content from the website
     response = requests.get(url)
     html = response.text
 
-    # Parse the HTML content with Beautiful Soup
     soup = BeautifulSoup(html, 'html.parser')
 
-    # Extracting information from the HTML structure
     property_listings = []
 
     for property_div in soup.find_all('a', class_='sc-1dun5hk-0 cOiOrj'):
@@ -150,9 +146,43 @@ def get_property_listings():
 
         property_listings.append(property_info)
 
-    # Return the extracted information as JSON
+
     return jsonify(property_listings)
         
+@app.route('/educational_tours', methods=['GET'])
+def get_educational_tours():
+
+    url = 'https://www.tourradar.com/o/olives-travel-tour-ghana/tours'
+
+  
+    response = requests.get(url)
+    html = response.text
+
+ 
+    soup = BeautifulSoup(html, 'html.parser')
+
+    educational_tours = []
+
+    for tour_div in soup.find_all('li', class_='js-ao-serp-tour-card ao-serp-tour-card'):
+        title = tour_div.find('h4', class_='js-ao-serp-tour__name ao-serp-tour-card__title').text.strip()
+        image_src = tour_div.find('img', class_='ao-serp-tour-card__hero-image')['src']
+        duration = tour_div.find('dd', class_='ao-serp-tour-card__detail-value').text.strip()
+        price = tour_div.find('dd', class_='ao-serp-tour-card__detail-value--price').text.strip()
+        operator = tour_div.find('dd', class_='ao-serp-tour-card__values-content--operator').text.strip()
+        view_tour_link = tour_div.find('a', class_='ao-serp-tour-card__button')['href']
+
+        tour_info = {
+            'title': title,
+            'image_src': image_src,
+            'duration': duration,
+            'price': price,
+            'operator': operator,
+            'view_tour_link': f"https://www.tourradar.com{view_tour_link}",
+        }
+
+        educational_tours.append(tour_info)
+
+    return jsonify(educational_tours)
 
 if __name__ == '__main__':
     app.run(debug=True)
