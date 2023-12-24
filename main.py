@@ -1,6 +1,11 @@
+from decimal import Decimal
+import time
 from flask import Flask, jsonify
 import requests
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
 
 app = Flask(__name__)
 
@@ -111,6 +116,43 @@ def get_laptop_data():
 
     return jsonify(laptops)
 
+
+
+@app.route('/rental', methods=['GET'])
+def get_property_listings():
+    # Replace the URL below with the actual URL of the website
+    url = 'https://www.realtor.com/international/gh/rent?sort=price+asc'
+
+    # Fetch the HTML content from the website
+    response = requests.get(url)
+    html = response.text
+
+    # Parse the HTML content with Beautiful Soup
+    soup = BeautifulSoup(html, 'html.parser')
+
+    # Extracting information from the HTML structure
+    property_listings = []
+
+    for property_div in soup.find_all('a', class_='sc-1dun5hk-0 cOiOrj'):
+        img_src = property_div.find('img')['src']
+        price = property_div.find('div', class_='displayConsumerPrice').text.strip()
+        address = property_div.find('div', class_='address').text.strip()
+        property_type = property_div.find('div', class_='property-type').text.strip()
+        view_details_link = property_div['href']
+
+        property_info = {
+            'img_src': img_src,
+            'price': price,
+            'address': address,
+            'property_type': property_type,
+            'view_details_link': view_details_link,
+        }
+
+        property_listings.append(property_info)
+
+    # Return the extracted information as JSON
+    return jsonify(property_listings)
+        
 
 if __name__ == '__main__':
     app.run(debug=True)
